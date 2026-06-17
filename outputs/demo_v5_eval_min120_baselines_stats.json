@@ -1,0 +1,93 @@
+{
+  "total_samples": 120,
+  "source_eval_path": "D:\\hllm_env\\KuaiSearch-main\\outputs\\demo_v5_eval_min120_deepseek.jsonl",
+  "baselines_run": [
+    "baseline_template_top1",
+    "baseline_template_personalized",
+    "baseline_summary_topk",
+    "baseline_llm_topk_local_fake",
+    "baseline_v5_local_fake"
+  ],
+  "sft_model_path_present": false,
+  "baseline_summary": {
+    "baseline_template_top1": {
+      "count": 120,
+      "nonempty_final_ad_copy_count": 120,
+      "fallback_count": 0,
+      "fallback_ratio": 0.0,
+      "fallback_reason_distribution": {},
+      "llm_provider_distribution": {},
+      "llm_status_distribution": {},
+      "provider_distribution": {},
+      "model_distribution": {}
+    },
+    "baseline_template_personalized": {
+      "count": 120,
+      "nonempty_final_ad_copy_count": 120,
+      "fallback_count": 0,
+      "fallback_ratio": 0.0,
+      "fallback_reason_distribution": {},
+      "llm_provider_distribution": {},
+      "llm_status_distribution": {},
+      "provider_distribution": {},
+      "model_distribution": {}
+    },
+    "baseline_summary_topk": {
+      "count": 120,
+      "nonempty_final_ad_copy_count": 120,
+      "fallback_count": 43,
+      "fallback_ratio": 0.3583,
+      "fallback_reason_distribution": {
+        "insufficient_evidence_items": 37,
+        "major_category_majority": 12,
+        "no_summary_signal": 6,
+        "shared_brand_and_leaf_category": 14,
+        "shared_major_category": 51
+      },
+      "llm_provider_distribution": {},
+      "llm_status_distribution": {},
+      "provider_distribution": {},
+      "model_distribution": {}
+    },
+    "baseline_llm_topk_local_fake": {
+      "count": 120,
+      "nonempty_final_ad_copy_count": 120,
+      "fallback_count": 119,
+      "fallback_ratio": 0.9917,
+      "fallback_reason_distribution": {
+        "llm_bad_copy_then_creative_template": 119
+      },
+      "llm_provider_distribution": {
+        "mock": 120
+      },
+      "llm_status_distribution": {
+        "llm_failed: bad_ad_copy_detected:可先关注": 119,
+        "llm_ok": 1
+      },
+      "provider_distribution": {},
+      "model_distribution": {}
+    },
+    "baseline_v5_local_fake": {
+      "count": 120,
+      "nonempty_final_ad_copy_count": 120,
+      "fallback_count": 120,
+      "fallback_ratio": 1.0,
+      "fallback_reason_distribution": {},
+      "llm_provider_distribution": {},
+      "llm_status_distribution": {
+        "local_fake_json_ok": 120
+      },
+      "provider_distribution": {
+        "local_fake": 120
+      },
+      "model_distribution": {
+        "mock-dynamic-creative": 120
+      }
+    },
+    "baseline_v5_sft_local": {
+      "count": 0,
+      "skipped": true,
+      "reason": "SFT_MODEL_PATH missing; local SFT baseline not executed in this session."
+    }
+  }
+}

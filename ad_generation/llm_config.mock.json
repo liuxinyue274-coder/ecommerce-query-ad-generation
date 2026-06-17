@@ -1,0 +1,7 @@
+{
+  "provider": "mock",
+  "model_name": "mock-dynamic-creative",
+  "temperature": 0.7,
+  "max_new_tokens": 128,
+  "timeout": 30
+}

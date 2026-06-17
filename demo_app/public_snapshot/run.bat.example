@@ -1,0 +1,21 @@
+@echo off
+REM Ecommerce CopyGen Studio - Windows launcher
+REM 使用前: 拷贝本文件为 run.bat,填入你自己的 V5 路径与 API key,run.bat 不要 commit
+
+setlocal
+
+REM === V5 主项目根目录 ===
+if "%KS_PROJECT_ROOT%"=="" set KS_PROJECT_ROOT=C:\path\to\your\v5_main_project
+
+REM === DeepSeek API key (仅 deepseek_chat provider 需要) ===
+REM set DEEPSEEK_API_KEY=YOUR_API_KEY_HERE
+
+REM === 本地 SFT 模型路径 (仅 sft_local provider 需要) ===
+REM set SFT_MODEL_PATH=C:\path\to\sft\model
+
+cd /d "%~dp0"
+
+echo Project root: %KS_PROJECT_ROOT%
+echo Launching Streamlit...
+streamlit run app.py
+endlocal

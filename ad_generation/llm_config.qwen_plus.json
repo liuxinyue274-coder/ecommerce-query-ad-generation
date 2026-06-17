@@ -1,0 +1,9 @@
+{
+  "provider": "api_openai_compatible",
+  "model_name": "qwen-plus",
+  "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  "api_key_env": "LLM_API_KEY",
+  "temperature": 0.85,
+  "max_new_tokens": 160,
+  "timeout": 60
+}

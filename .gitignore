@@ -1,0 +1,93 @@
+# Python
+__pycache__/
+*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Local environments and secrets
+.venv/
+venv/
+env/
+.env
+*.key
+.streamlit/secrets.toml
+demo_app/.streamlit/secrets.toml
+**/secrets.toml
+
+# Caches and logs
+.cache/
+*.log
+nohup.out
+wandb/
+runs/
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Large datasets and generated model artifacts
+items_lite/
+users_lite/
+rank_lite/
+recall_lite/
+rank/
+recall/
+relevance/
+data/
+checkpoints/
+checkpoint*/
+best_model/
+model/
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.npy
+*.faiss
+doc_embedding/
+
+# Generated outputs: keep small samples and markdown reports
+outputs/*.jsonl
+outputs/*.csv
+outputs/*.pkl
+outputs/*.pt
+outputs/*.bin
+outputs/*.safetensors
+outputs/.*runtime*.json
+!outputs/*sample*.jsonl
+!outputs/*sample*.csv
+!outputs/*.md
+
+demo_app/outputs/*.jsonl
+demo_app/outputs/*.csv
+demo_app/outputs/*.pkl
+demo_app/outputs/*.pt
+demo_app/outputs/*.bin
+demo_app/outputs/*.safetensors
+!demo_app/outputs/*sample*.jsonl
+!demo_app/outputs/*sample*.csv
+!demo_app/docs/
+!demo_app/docs/**
+!demo_app/public_snapshot/
+!demo_app/public_snapshot/**
+
+# Generated training data and local LLM config overrides
+ad_generation/data/train_pairs.jsonl
+ad_generation/data/sft_train.jsonl
+*.jsonl.bak
+llm_config.temp*.json
+llm_config.local.json
+
+# Legacy local visualization copy; public version lives in demo_app/
+hllm visualization/

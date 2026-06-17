@@ -1,0 +1,32 @@
+{
+  "notice": "当前 real_sft_ad_copy.jsonl 是由 deepseek_chat 生成并经过规则筛选的高质量伪标注数据，不是人工金标，主要用于 SFT 链路验证。",
+  "data_path": "outputs\\real_sft_ad_copy.jsonl",
+  "dry_run": true,
+  "model_name_or_path": "",
+  "output_dir": "outputs\\sft_ad_copy_lora",
+  "max_steps": 50,
+  "batch_size": 1,
+  "learning_rate": 2e-05,
+  "use_lora": true,
+  "dependency_status": {
+    "torch": true,
+    "transformers": false,
+    "peft": false,
+    "trl": false
+  },
+  "stats": {
+    "total_samples": 5,
+    "valid_samples": 5,
+    "invalid_samples": 0,
+    "avg_assistant_length": 24.2,
+    "provider_distribution": {
+      "deepseek_chat": 5
+    },
+    "evidence_confidence_distribution": {
+      "medium": 2,
+      "high": 3
+    },
+    "avg_score": 86.0,
+    "invalid_reason_distribution": {}
+  }
+}

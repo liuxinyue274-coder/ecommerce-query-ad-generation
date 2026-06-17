@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# Streamlit
+.streamlit/secrets.toml
+
+# 本地启动脚本(含 API key)
+run.bat
+run.sh
+
+# 看板自身输出 - 含真实 query/模型生成内容
+outputs/badcases.jsonl
+outputs/*.jsonl
+!outputs/*sample*.jsonl
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

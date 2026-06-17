@@ -1,0 +1,5 @@
+streamlit>=1.30,<2.0
+streamlit-shadcn-ui>=0.1.18
+streamlit-antd-components>=0.3.2
+streamlit-extras>=0.4.0
+streamlit-feedback>=0.1.3

@@ -1,0 +1,53 @@
+{
+  "total_samples": 120,
+  "requested_provider": "deepseek_chat",
+  "llm_config_path": "D:\\hllm_env\\KuaiSearch-main\\ad_generation\\llm_config.deepseek_chat.json",
+  "deepseek_api_key_present": true,
+  "sft_model_path_present": false,
+  "requested_quotas": {
+    "short-high": 20,
+    "short-low": 20,
+    "medium-high": 30,
+    "medium-low": 30,
+    "long-high": 10,
+    "long-low": 10
+  },
+  "actual_quota_distribution": {
+    "long-high": 10,
+    "long-low": 10,
+    "medium-high": 30,
+    "medium-low": 30,
+    "short-high": 20,
+    "short-low": 20
+  },
+  "query_bucket_distribution": {
+    "short": 40,
+    "medium": 60,
+    "long": 20
+  },
+  "evidence_strength_distribution": {
+    "high": 60,
+    "low": 60
+  },
+  "query_category_distribution": {
+    "digital": 10,
+    "apparel": 52,
+    "food": 16,
+    "health": 13,
+    "misc": 29
+  },
+  "provider_distribution": {
+    "deepseek_chat": 120
+  },
+  "model_distribution": {
+    "deepseek-chat": 120
+  },
+  "llm_status_distribution": {
+    "provider_ok": 120
+  },
+  "cache_status_distribution": {
+    "hit": 120
+  },
+  "fallback_triggered_count": 0,
+  "fallback_triggered_ratio": 0.0
+}
