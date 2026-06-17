@@ -498,7 +498,7 @@ def render_pair_table(result: Dict[str, Any]) -> None:
         return "color: #A8A29E;"
 
     styled = df_pairs.style.applymap(_valid_color, subset=["valid"])
-    st.dataframe(styled, width="stretch", hide_index=True)
+    st.dataframe(styled, use_container_width=True, hide_index=True)
 
 
 def _build_item_copy_pairs(
@@ -685,7 +685,7 @@ def render_evidence(result: Dict[str, Any]) -> None:
                 "click_cnt": it.get("click_cnt"),
             }
         )
-    st.dataframe(rows, width="stretch", hide_index=True)
+    st.dataframe(rows, use_container_width=True, hide_index=True)
 
 
 def render_candidates(result: Dict[str, Any]) -> None:
@@ -842,7 +842,7 @@ def render_validator(result: Dict[str, Any]) -> None:
                         "text": c.get("text"),
                     }
                 )
-            st.dataframe(rows, width="stretch", hide_index=True)
+            st.dataframe(rows, use_container_width=True, hide_index=True)
 
 
 def render_advanced(result: Dict[str, Any]) -> None:
@@ -1043,9 +1043,9 @@ def render_consumer_view(query: str, result: Dict[str, Any], key_prefix: str = "
                     bcols = st.columns(2)
                     btn_key1 = f"{key_prefix}_buy_{row_idx}_{col_idx}"
                     btn_key2 = f"{key_prefix}_cart_{row_idx}_{col_idx}"
-                    if bcols[0].button("立即购买", key=btn_key1, type="primary", width="stretch"):
+                    if bcols[0].button("立即购买", key=btn_key1, type="primary"):
                         st.toast(f"🛒 演示模式：未对接交易系统（{title[:14]}…）", icon="✨")
-                    if bcols[1].button("加购物车", key=btn_key2, width="stretch"):
+                    if bcols[1].button("加购物车", key=btn_key2):
                         st.toast(f"🛍️ 已加入购物车（演示）：{title[:14]}…", icon="✨")
 
 
@@ -1082,7 +1082,7 @@ def render_taobao_search_bar(default_query: str, key_prefix: str = "demo") -> Tu
             )
         with cols[3]:
             run_clicked = st.button(
-                "🔍 搜索", type="primary", width="stretch", key=f"{key_prefix}_run"
+                "🔍 搜索", type="primary", key=f"{key_prefix}_run"
             )
         # 排序 tabs（纯装饰）
         st.markdown(
@@ -1295,10 +1295,10 @@ with st.sidebar:
     cache_size = len(st.session_state.get("_run_cache", {}))
     st.caption(f"已缓存 {cache_size} 条结果")
     cc1, cc2 = st.columns(2)
-    if cc1.button("🧹 清结果缓存", width="stretch"):
+    if cc1.button("🧹 清结果缓存"):
         st.session_state["_run_cache"] = {}
         st.success("结果缓存已清空。")
-    if cc2.button("🔄 清 runtime", width="stretch"):
+    if cc2.button("🔄 清 runtime"):
         load_runtime.clear()
         st.success("runtime cache 已清，下次请求会重建。")
     parallel_max = st.slider(
@@ -1384,7 +1384,7 @@ with tab_live:
         sample_cols = st.columns(5)
         samples = ["运动手环", "宿舍吹风机", "通勤双肩包", "敏感肌面霜", "手机壳"]
         for col, sample in zip(sample_cols, samples):
-            if col.button(sample, key=f"hot_{sample}", width="stretch"):
+            if col.button(sample, key=f"hot_{sample}"):
                 st.session_state["pending_query"] = sample
                 st.session_state["pending_run"] = True
                 st.session_state["demo_query"] = sample  # 同步到搜索框
@@ -1403,12 +1403,12 @@ with tab_live:
             )
         with col_btn:
             st.markdown("<br>", unsafe_allow_html=True)
-            run_btn = st.button("▶ 运行", type="primary", width="stretch")
+            run_btn = st.button("▶ 运行", type="primary")
 
         sample_cols = st.columns(5)
         samples = ["运动手环", "宿舍吹风机", "通勤双肩包", "敏感肌面霜", "手机壳"]
         for col, sample in zip(sample_cols, samples):
-            if col.button(sample, key=f"sample_{sample}", width="stretch"):
+            if col.button(sample, key=f"sample_{sample}"):
                 st.session_state["pending_query"] = sample
                 st.session_state["pending_run"] = True
 
@@ -1525,7 +1525,7 @@ with tab_live:
                 }
                 for q in diversity_state.get("queries", [])
             ]
-            st.dataframe(timing_rows, width="stretch", hide_index=True)
+            st.dataframe(timing_rows, use_container_width=True, hide_index=True)
         st.markdown(f"#### 多 query 合并结果（{len(diversity_state['sub_results'])} 条 sub-query）")
 
         merged: Dict[str, Dict[str, Any]] = {}
@@ -1689,7 +1689,7 @@ with tab_offline:
 
         filtered = [row for row in summary_rows if _match(row)]
         st.caption(f"共 {len(records)} 条 · 筛选后 {len(filtered)} 条")
-        st.dataframe(filtered, width="stretch", hide_index=True)
+        st.dataframe(filtered, use_container_width=True, hide_index=True)
 
         if filtered:
             indices = [row["#"] for row in filtered]
@@ -1698,7 +1698,7 @@ with tab_offline:
             current = st.session_state["off_current_idx"]
 
             nav1, nav2, nav3 = st.columns([1, 4, 1])
-            if nav1.button("◀ 上一条", width="stretch", disabled=indices.index(current) == 0):
+            if nav1.button("◀ 上一条", disabled=indices.index(current) == 0):
                 st.session_state["off_current_idx"] = indices[max(0, indices.index(current) - 1)]
                 st.rerun()
             choice = nav2.selectbox(
@@ -1711,7 +1711,7 @@ with tab_offline:
             if choice != current:
                 st.session_state["off_current_idx"] = choice
                 st.rerun()
-            if nav3.button("下一条 ▶", width="stretch", disabled=indices.index(current) == len(indices) - 1):
+            if nav3.button("下一条 ▶", disabled=indices.index(current) == len(indices) - 1):
                 st.session_state["off_current_idx"] = indices[min(len(indices) - 1, indices.index(current) + 1)]
                 st.rerun()
 
@@ -1759,7 +1759,7 @@ with tab_badcase:
                 }
                 for b in bc_rows
             ]
-            st.dataframe(preview, width="stretch", hide_index=True)
+            st.dataframe(preview, use_container_width=True, hide_index=True)
             st.download_button(
                 "下载 badcases.jsonl",
                 data=bc_path.read_bytes(),
