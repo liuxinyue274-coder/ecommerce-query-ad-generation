@@ -260,6 +260,31 @@
       font-size: 13px;
     }
 
+    .video-card {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 18px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(16, 36, 58, 0.94), rgba(8, 21, 35, 0.94));
+      box-shadow: var(--shadow);
+    }
+
+    .video-card video {
+      display: block;
+      width: 100%;
+      max-width: 1100px;
+      border-radius: 8px;
+      border: 1px solid rgba(40, 215, 255, 0.24);
+      background: #020812;
+    }
+
+    .video-fallback {
+      margin: 12px 2px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
     footer {
       padding: 26px 0 36px;
       color: #7892a4;
@@ -291,13 +316,37 @@
         面向电商搜索广告场景，将 Query 理解、证据选择、Prompt 构建、LLM 生成、规则校验与排序重写串联为可解释链路，用于生成更贴合用户意图和商品事实的广告文案。
       </p>
       <div class="hero-actions">
-        <a class="btn primary" href="#samples">查看静态样例</a>
-        <a class="btn" href="#links">项目链接</a>
+        <a class="btn primary" href="https://ecommerce-query-ad-generationgit-nwshxgbxfdawgzqoxhaim5.streamlit.app/" target="_blank" rel="noopener">打开 Streamlit Demo</a>
+        <a class="btn" href="https://github.com/liuxinyue274-coder/ecommerce-query-ad-generation" target="_blank" rel="noopener">查看 GitHub 仓库</a>
+        <a class="btn" href="#samples">查看静态样例</a>
       </div>
     </div>
   </header>
 
   <main class="shell">
+    <section id="experience">
+      <div class="section-head">
+        <h2>在线体验</h2>
+        <p class="section-note">静态页面用于 Vercel 展示；完整交互版本部署在 Streamlit Cloud，代码与样例数据已公开在 GitHub。</p>
+      </div>
+      <div class="grid">
+        <article class="card wide">
+          <h3>Streamlit 在线交互 Demo</h3>
+          <p>体验离线样例查询、候选文案、证据、校验与排序结果展示。</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="https://ecommerce-query-ad-generationgit-nwshxgbxfdawgzqoxhaim5.streamlit.app/" target="_blank" rel="noopener">打开 Streamlit Demo</a>
+          </div>
+        </article>
+        <article class="card wide">
+          <h3>GitHub 仓库</h3>
+          <p>查看项目代码、部署说明、样例输出与静态展示资源。</p>
+          <div class="hero-actions">
+            <a class="btn" href="https://github.com/liuxinyue274-coder/ecommerce-query-ad-generation" target="_blank" rel="noopener">查看 GitHub 仓库</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
     <section>
       <div class="section-head">
         <h2>项目背景与研究意义</h2>
@@ -438,19 +487,32 @@
       </div>
     </section>
 
+    <section id="video-demo">
+      <div class="section-head">
+        <h2>项目演示录屏</h2>
+        <p class="section-note">录屏展示 Streamlit Demo 的样例查询、候选文案与诊断信息浏览流程。</p>
+      </div>
+      <div class="video-card">
+        <video controls src="assets/demo.mp4">
+          如视频无法播放，请查看 GitHub 仓库或在线 Demo。
+        </video>
+        <p class="video-fallback">如视频无法播放，请查看 GitHub 仓库或在线 Demo。</p>
+      </div>
+    </section>
+
     <section id="links">
       <div class="section-head">
         <h2>项目链接</h2>
-        <p class="section-note">部署后可替换为真实仓库与在线交互页面。</p>
+        <p class="section-note">在线交互版本与代码仓库入口。</p>
       </div>
       <div class="grid">
         <article class="card wide">
           <h3>GitHub</h3>
-          <p><a href="#" aria-label="GitHub link placeholder">https://github.com/your-user/your-repo</a></p>
+          <p><a href="https://github.com/liuxinyue274-coder/ecommerce-query-ad-generation" target="_blank" rel="noopener">https://github.com/liuxinyue274-coder/ecommerce-query-ad-generation</a></p>
         </article>
         <article class="card wide">
           <h3>在线交互 Demo</h3>
-          <p><a href="#" aria-label="Interactive demo link placeholder">https://your-streamlit-demo.example.com</a></p>
+          <p><a href="https://ecommerce-query-ad-generationgit-nwshxgbxfdawgzqoxhaim5.streamlit.app/" target="_blank" rel="noopener">https://ecommerce-query-ad-generationgit-nwshxgbxfdawgzqoxhaim5.streamlit.app/</a></p>
         </article>
       </div>
     </section>
