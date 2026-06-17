@@ -427,6 +427,99 @@ def run_query_timed(
     return result, elapsed, False
 
 
+OFFLINE_SAMPLE_PATH = OUTPUTS_DIR / "demo_v5_outputs_sample.jsonl"
+
+
+def realtime_v5_available() -> bool:
+    pairs_path = AD_GEN_DIR / "data" / "train_pairs.jsonl"
+    rank_dir = PROJECT_ROOT / "rank_lite"
+    items_dir = PROJECT_ROOT / "items_lite"
+    return (
+        pairs_path.exists()
+        and ((rank_dir / "train.jsonl").exists() or rank_dir.exists())
+        and ((items_dir / "train.jsonl").exists() or items_dir.exists())
+    )
+
+
+@st.cache_data(show_spinner=False)
+def load_offline_samples(path_str: str) -> List[Dict[str, Any]]:
+    path = Path(path_str)
+    records: List[Dict[str, Any]] = []
+    if not path.exists():
+        return records
+    with path.open("r", encoding="utf-8-sig") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(rec, dict):
+                records.append(rec)
+    return records
+
+
+def _norm_query(value: Any) -> str:
+    return str(value or "").strip().lower()
+
+
+def _offline_query_keys(record: Dict[str, Any]) -> List[str]:
+    result = record.get("result") or {}
+    retrieval_bundle = result.get("retrieval_bundle") or {}
+    query_norm = result.get("query_normalization") or {}
+    keys = [
+        record.get("query"),
+        result.get("query"),
+        query_norm.get("raw_query"),
+        query_norm.get("normalized_query"),
+        retrieval_bundle.get("raw_query"),
+    ]
+    nested_result = retrieval_bundle.get("result") or {}
+    keys.extend([nested_result.get("query"), nested_result.get("normalized_query")])
+    deduped: List[str] = []
+    seen = set()
+    for key in keys:
+        text = str(key or "").strip()
+        if text and text not in seen:
+            deduped.append(text)
+            seen.add(text)
+    return deduped
+
+
+def find_offline_sample(query: str) -> Optional[Dict[str, Any]]:
+    target = _norm_query(query)
+    if not target:
+        return None
+    records = load_offline_samples(str(OFFLINE_SAMPLE_PATH))
+    exact_matches: List[Dict[str, Any]] = []
+    fuzzy_matches: List[Dict[str, Any]] = []
+    for rec in records:
+        keys = [_norm_query(k) for k in _offline_query_keys(rec)]
+        if target in keys:
+            exact_matches.append(rec)
+            continue
+        if any(target in key or key in target for key in keys if key):
+            fuzzy_matches.append(rec)
+    if exact_matches:
+        return exact_matches[0]
+    if fuzzy_matches:
+        return fuzzy_matches[0]
+    return None
+
+
+def offline_sample_queries(limit: int = 5) -> List[str]:
+    queries: List[str] = []
+    for rec in load_offline_samples(str(OFFLINE_SAMPLE_PATH)):
+        for key in _offline_query_keys(rec):
+            if key and key not in queries:
+                queries.append(key)
+                break
+        if len(queries) >= limit:
+            break
+    return queries or ["华为手环", "宿舍吹风机", "手机壳"]
+
+
 # ---------------------------------------------------------------------------
 # 结果渲染
 # ---------------------------------------------------------------------------
@@ -497,7 +590,11 @@ def render_pair_table(result: Dict[str, Any]) -> None:
             return "color: #7C5E50; font-weight: 700;"
         return "color: #A8A29E;"
 
-    styled = df_pairs.style.applymap(_valid_color, subset=["valid"])
+    styler = df_pairs.style
+    if hasattr(styler, "map"):
+        styled = styler.map(_valid_color, subset=["valid"])
+    else:
+        styled = styler.applymap(_valid_color, subset=["valid"])
     st.dataframe(styled, use_container_width=True, hide_index=True)
 
 
@@ -1073,10 +1170,8 @@ def render_taobao_search_bar(default_query: str, key_prefix: str = "demo") -> Tu
         with cols[2]:
             provider = st.selectbox(
                 "provider",
-                ["local_fake", "deepseek_chat", "sft_local"],
-                index=["local_fake", "deepseek_chat", "sft_local"].index(
-                    st.session_state.get(f"{key_prefix}_provider", "local_fake")
-                ),
+                ["local_fake"],
+                index=0,
                 label_visibility="collapsed",
                 key=f"{key_prefix}_provider",
             )
@@ -1259,55 +1354,58 @@ def render_result(query: str, provider: str, result: Dict[str, Any], key_prefix:
 # Sidebar
 # ---------------------------------------------------------------------------
 with st.sidebar:
-    st.header("⚙️ 看板设置")
-    provider = st.selectbox(
-        "LLM Provider",
-        ["local_fake", "deepseek_chat", "sft_local"],
-        help=(
-            "local_fake：本地 mock，无需 API；"
-            "deepseek_chat：调真实 DeepSeek API（需 DEEPSEEK_API_KEY 环境变量）；"
-            "sft_local：本地 SFT/LoRA 入口（需 SFT_MODEL_PATH）。"
-        ),
-    )
-    top_k = st.slider("evidence top_k", 1, 10, 3)
-    candidate_count = st.slider("candidate_count", 1, 10, 5)
+    st.header("Demo Settings")
+    has_realtime_data = realtime_v5_available()
+    if has_realtime_data:
+        execution_mode = st.selectbox(
+            "Run mode",
+            ["offline_sample", "realtime_v5"],
+            index=0,
+            help="Public deployment defaults to offline samples. Enable realtime V5 only when local data exists.",
+        )
+    else:
+        execution_mode = "offline_sample"
+        st.info("云端已切换为离线样例模式")
+
+    provider = "local_fake"
+    st.caption("Provider: `local_fake`")
+    top_k = st.slider("evidence top_k", 1, 10, 3, disabled=execution_mode != "realtime_v5")
+    candidate_count = st.slider("candidate_count", 1, 10, 5, disabled=execution_mode != "realtime_v5")
 
     st.markdown("---")
-    st.caption(f"项目根：`{PROJECT_ROOT}`")
-    st.caption(f"输出目录：`{OUTPUTS_DIR}`")
+    st.caption(f"Project root: `{PROJECT_ROOT}`")
+    st.caption(f"Outputs: `{OUTPUTS_DIR}`")
+    st.caption(f"Sample file: `{OFFLINE_SAMPLE_PATH}`")
 
-    if not AD_GEN_DIR.exists():
-        st.error(f"❌ 找不到 ad_generation 目录：{AD_GEN_DIR}")
-        st.caption("可设置环境变量 KS_PROJECT_ROOT 指向 KuaiSearch-main 的实际位置。")
-
-    if provider == "deepseek_chat" and not os.environ.get("DEEPSEEK_API_KEY"):
-        st.warning("未检测到 DEEPSEEK_API_KEY，将自动 fallback 到 local_fake。")
-    if provider == "sft_local" and not os.environ.get("SFT_MODEL_PATH"):
-        st.info("未配置 SFT_MODEL_PATH，sft_local 会优雅 fallback。")
+    if execution_mode == "realtime_v5" and not AD_GEN_DIR.exists():
+        st.error(f"Cannot find ad_generation directory: {AD_GEN_DIR}")
+        st.caption("Set KS_PROJECT_ROOT to the KuaiSearch-main project root if needed.")
 
     st.markdown("---")
     use_cache = st.toggle(
-        "结果缓存（同 query 秒回）",
+        "Result cache",
         value=True,
-        help="按 (query, provider, top_k, candidate_count) 维度缓存。调试反复跑同一条 query 时极快。",
+        help="Only used in realtime_v5 mode.",
         key="sb_use_cache",
+        disabled=execution_mode != "realtime_v5",
     )
     cache_size = len(st.session_state.get("_run_cache", {}))
-    st.caption(f"已缓存 {cache_size} 条结果")
+    st.caption(f"Cached results: {cache_size}")
     cc1, cc2 = st.columns(2)
-    if cc1.button("🧹 清结果缓存"):
+    if cc1.button("Clear cache"):
         st.session_state["_run_cache"] = {}
-        st.success("结果缓存已清空。")
-    if cc2.button("🔄 清 runtime"):
+        st.success("Cache cleared.")
+    if cc2.button("Clear runtime", disabled=execution_mode != "realtime_v5"):
         load_runtime.clear()
-        st.success("runtime cache 已清，下次请求会重建。")
+        st.success("Runtime cache cleared.")
     parallel_max = st.slider(
-        "多 query 并发数",
+        "Parallel queries",
         min_value=1,
         max_value=8,
         value=4,
-        help="多样性增强时并发跑 sub-query 的线程数；deepseek_chat 主要瓶颈是网络等待，并发能显著缩短墙钟时间。",
+        help="Only used in realtime_v5 mode.",
         key="sb_parallel_max",
+        disabled=execution_mode != "realtime_v5",
     )
 
 
@@ -1364,6 +1462,9 @@ tab_live, tab_offline, tab_badcase = st.tabs(["● 实时调用", "📂 离线�
 
 # --- Tab: 实时调用 ---
 with tab_live:
+    if execution_mode != "realtime_v5":
+        st.info("云端已切换为离线样例模式")
+    default_sample_query = offline_sample_queries(1)[0]
     if is_demo:
         # 🛒 演示模式：Taobao 风格搜索框作为 query 入口（替代调试风的"输入 Query + ▶ 运行"）
         # 隐藏 sidebar 让画面更沉浸
@@ -1371,7 +1472,7 @@ with tab_live:
             "<style>section[data-testid='stSidebar']{display:none !important;}</style>",
             unsafe_allow_html=True,
         )
-        default_q = st.session_state.get("shared_query", "运动手环")
+        default_q = st.session_state.get("shared_query", default_sample_query)
         query, demo_provider, run_btn = render_taobao_search_bar(default_q, key_prefix="demo")
         # 用演示模式的 provider 覆盖 sidebar 的 provider
         provider = demo_provider
@@ -1382,7 +1483,7 @@ with tab_live:
             unsafe_allow_html=True,
         )
         sample_cols = st.columns(5)
-        samples = ["运动手环", "宿舍吹风机", "通勤双肩包", "敏感肌面霜", "手机壳"]
+        samples = offline_sample_queries(5)
         for col, sample in zip(sample_cols, samples):
             if col.button(sample, key=f"hot_{sample}"):
                 st.session_state["pending_query"] = sample
@@ -1397,7 +1498,7 @@ with tab_live:
         with col_q:
             query = st.text_input(
                 "输入 Query",
-                value=st.session_state.get("shared_query", "运动手环"),
+                value=st.session_state.get("shared_query", default_sample_query),
                 placeholder="例如：运动手环 / 宿舍吹风机 / 通勤双肩包 / 敏感肌面霜",
                 key="debug_query",
             )
@@ -1406,7 +1507,7 @@ with tab_live:
             run_btn = st.button("▶ 运行", type="primary")
 
         sample_cols = st.columns(5)
-        samples = ["运动手环", "宿舍吹风机", "通勤双肩包", "敏感肌面霜", "手机壳"]
+        samples = offline_sample_queries(5)
         for col, sample in zip(sample_cols, samples):
             if col.button(sample, key=f"sample_{sample}"):
                 st.session_state["pending_query"] = sample
@@ -1445,7 +1546,26 @@ with tab_live:
                 if s and s not in qlist:
                     qlist.append(s)
 
-        if len(qlist) == 1:
+        if execution_mode != "realtime_v5":
+            try:
+                rec = find_offline_sample(qlist[0])
+                if rec:
+                    result = rec.get("result") or {}
+                    matched_query = str(rec.get("query") or qlist[0])
+                    st.session_state["last_result"] = (matched_query, "local_fake", result)
+                    st.session_state["last_timing"] = {"offline": True, "hit": True}
+                    st.session_state.pop("last_diversity", None)
+                else:
+                    st.session_state.pop("last_result", None)
+                    st.session_state.pop("last_timing", None)
+                    st.session_state.pop("last_diversity", None)
+                    st.warning("公开 Demo 当前仅支持样例查询，请点击下方示例 Query。")
+            except Exception as e:  # noqa: BLE001
+                st.session_state.pop("last_result", None)
+                st.session_state.pop("last_timing", None)
+                st.session_state.pop("last_diversity", None)
+                st.warning(f"离线样例读取失败：{type(e).__name__}: {e}")
+        elif len(qlist) == 1:
             with st.spinner(f"正在用 `{provider}` 跑 V5 链路..."):
                 try:
                     result, elapsed, hit = run_query_timed(
@@ -1455,8 +1575,7 @@ with tab_live:
                     st.session_state["last_timing"] = {"elapsed": elapsed, "hit": hit}
                     st.session_state.pop("last_diversity", None)
                 except Exception as e:  # noqa: BLE001
-                    st.error(f"运行失败：{type(e).__name__}: {e}")
-                    st.exception(e)
+                    st.warning(f"运行失败：{type(e).__name__}: {e}")
         else:
             sub_results: List[Dict[str, Any]] = []
             errors: List[str] = []
@@ -1591,7 +1710,9 @@ with tab_live:
         q, p, r = st.session_state["last_result"]
         timing = st.session_state.get("last_timing") or {}
         if timing:
-            if timing.get("hit"):
+            if timing.get("offline"):
+                badge = "<span style='color:#B8985C;font-weight:700;'>offline sample</span>"
+            elif timing.get("hit"):
                 badge = "<span style='color:#B8985C;font-weight:700;'>● cache hit</span>"
             else:
                 badge = f"⏱ {timing.get('elapsed', 0):.2f}s"
